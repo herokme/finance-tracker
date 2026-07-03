@@ -1,4 +1,4 @@
-const CACHE_NAME = 'finance-tracker-v2';
+const CACHE_NAME = 'finance-tracker-v3';
 const urlsToCache = [
   './',
   './index.html',
@@ -21,12 +21,20 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  const req = event.request;
+  // Only handle same-origin GET requests (the app shell). Let everything else —
+  // Firebase Auth / Firestore / Google sign-in, and any POST — go straight to the
+  // network untouched, or they break with auth/network-request-failed.
+  if (req.method !== 'GET') return;
+  let sameOrigin = false;
+  try { sameOrigin = new URL(req.url).origin === self.location.origin; } catch (e) {}
+  if (!sameOrigin) return;
   event.respondWith(
     caches.open(CACHE_NAME).then(cache =>
-      fetch(event.request).then(response => {
-        if (response.ok) cache.put(event.request, response.clone());
+      fetch(req).then(response => {
+        if (response.ok) cache.put(req, response.clone());
         return response;
-      }).catch(() => cache.match(event.request).then(r => r || cache.match('./index.html')))
+      }).catch(() => cache.match(req).then(r => r || cache.match('./index.html')))
     )
   );
 });
