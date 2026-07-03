@@ -669,12 +669,12 @@
     position: fixed; top: 50%; left: 50%; width: 420px; max-width: calc(100vw - 32px); max-height: 90vh;
     background: var(--bg-elev); z-index: 901; border-radius: 20px; overflow: hidden;
     display: flex; flex-direction: column;
-    transform: translate(-50%, -48%) scale(0.96); opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96); opacity: 0; pointer-events: none;
     transition: transform 0.28s cubic-bezier(0.34,1.3,0.64,1), opacity 0.2s ease;
     box-shadow: 0 30px 80px rgba(0,0,0,0.35), 0 10px 30px rgba(0,0,0,0.2);
   }
   body.dark .txn-drawer { box-shadow: 0 30px 90px rgba(0,0,0,0.75), 0 10px 30px rgba(0,0,0,0.55); }
-  .txn-drawer.open { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  .txn-drawer.open { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto; }
 
   .txn-drawer-head {
     display: flex; align-items: center; justify-content: space-between;
@@ -777,6 +777,81 @@
   .money-row-note { font-size: 13px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .money-row-amt { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
   .money-row-unsubmitted { opacity: 0.55; font-style: italic; }
+
+  /* Bottom nav + backdrop are desktop-hidden; shown only on phones */
+  .mobile-nav { display: none; }
+  .nav-backdrop { display: none; }
+
+  /* ===================== MOBILE / PHONE APP ===================== */
+  @media (max-width: 820px) {
+    /* No top toggle — navigation lives in the bottom bar */
+    #sidebarToggle { display: none; }
+
+    /* Sidebar becomes the "More" bottom sheet */
+    .sidebar {
+      position: fixed; left: 0; right: 0; bottom: 0; top: auto;
+      width: 100%; max-width: none; height: 82vh;
+      z-index: 400; transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+      border-radius: 22px 22px 0 0; padding: 10px 16px 24px;
+      box-shadow: 0 -12px 50px rgba(0,0,0,0.35); overflow-y: auto;
+    }
+    body.dark .sidebar { box-shadow: 0 -12px 50px rgba(0,0,0,0.6); }
+    body.sidebar-collapsed .sidebar { width: 100%; max-width: none; padding: 10px 16px 24px; }
+    body.nav-open .sidebar { transform: translateY(0); }
+    /* little grab handle at the top of the sheet */
+    .sidebar::before {
+      content: ""; display: block; width: 40px; height: 4px; border-radius: 2px;
+      background: var(--text-dim); opacity: 0.4; margin: 2px auto 12px; flex-shrink: 0;
+    }
+
+    .nav-backdrop {
+      display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 350; opacity: 0; pointer-events: none; transition: opacity .3s ease;
+    }
+    body.nav-open .nav-backdrop { opacity: 1; pointer-events: auto; }
+
+    /* Bottom tab bar */
+    .mobile-nav {
+      display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 300;
+      background: var(--bg-elev); border-top: 1px solid var(--border);
+      padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+    }
+    body.dark .mobile-nav { background: #161619; box-shadow: 0 -4px 22px rgba(0,0,0,0.45); }
+    .mnav-btn {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+      background: none; border: none; color: var(--text-dim); cursor: pointer;
+      padding: 7px 2px; font: inherit; border-radius: 12px;
+      transition: color .15s ease, transform .1s ease; -webkit-tap-highlight-color: transparent;
+    }
+    .mnav-btn:active { transform: scale(0.92); }
+    .mnav-ico { font-size: 20px; line-height: 1; }
+    .mnav-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.2px; }
+    .mnav-btn.active { color: var(--accent); }
+    .mnav-btn.active .mnav-ico { transform: translateY(-1px); }
+
+    /* Content: full width, clears the bottom bar */
+    .main { width: 100%; }
+    .content { padding: 14px 13px calc(84px + env(safe-area-inset-bottom, 0px)); }
+    .syncbar { padding: 8px 13px; gap: 10px; }
+    .toast { bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+
+    /* Native-ish stacking */
+    .page-head { flex-direction: column; align-items: stretch; gap: 12px; }
+    .page-title h1 { font-size: 22px; }
+    .money-controls, .stats-controls { width: 100%; flex-wrap: wrap; }
+
+    /* One column everywhere */
+    .money-grid { grid-template-columns: 1fr; padding: 12px; gap: 12px; }
+    .cards, .stats-cards, .ms-summary, #depositCards, .acct-page-grid, .wed-earnings-grid { grid-template-columns: 1fr; padding: 12px; }
+    .perf-chart-col { flex: 1 1 100%; min-width: 0; }
+
+    /* Modals + wide tables fit the screen */
+    .txn-drawer { width: calc(100vw - 20px); max-height: 92vh; }
+    .tdest-step { width: 30px; height: 30px; }
+    .table-wrap, .wed-table-wrap { overflow-x: auto; }
+  }
 </style>
 </head>
 <body>
@@ -821,6 +896,16 @@
       </div>
     </div>
   </aside>
+
+  <!-- Mobile: backdrop for the "More" bottom sheet + bottom tab bar (only shown on phones) -->
+  <div class="nav-backdrop" id="navBackdrop"></div>
+  <nav class="mobile-nav" id="mobileNav">
+    <button class="mnav-btn" data-nav="money"><span class="mnav-ico">💰</span><span class="mnav-lbl">Money</span></button>
+    <button class="mnav-btn" data-nav="stocks"><span class="mnav-ico">📈</span><span class="mnav-lbl">Stocks</span></button>
+    <button class="mnav-btn" data-nav="deposits"><span class="mnav-ico">💳</span><span class="mnav-lbl">Deposits</span></button>
+    <button class="mnav-btn" data-nav="stats"><span class="mnav-ico">📊</span><span class="mnav-lbl">Stats</span></button>
+    <button class="mnav-btn" data-nav="more"><span class="mnav-ico">☰</span><span class="mnav-lbl">More</span></button>
+  </nav>
 
   <main class="main">
     <!-- Sync bar (app-wide) -->
@@ -2584,6 +2669,21 @@
     localStorage.setItem(SIDEBAR_KEY, collapsed ? "1" : "0");
   });
 
+  // ---- Mobile bottom navigation ----
+  (function initMobileNav() {
+    const nav = document.getElementById("mobileNav");
+    const backdrop = document.getElementById("navBackdrop");
+    if (nav) nav.addEventListener("click", (e) => {
+      const btn = e.target.closest(".mnav-btn"); if (!btn) return;
+      const kind = btn.dataset.nav;
+      if (kind === "more") { document.body.classList.toggle("nav-open"); return; }
+      document.body.classList.remove("nav-open");
+      const target = { money: "money-transactions", stocks: "stocks", deposits: "deposits", stats: "stats" }[kind];
+      if (target) navigateTo(target);
+    });
+    if (backdrop) backdrop.addEventListener("click", () => document.body.classList.remove("nav-open"));
+  })();
+
   (function applyDarkMode() {
     const dark = localStorage.getItem("finance-tracker.dark") === "1";
     if (dark) document.body.classList.add("dark");
@@ -4330,6 +4430,16 @@
     if (sectionId === "subscriptions") renderSubscriptions();
     if (sectionId === "weddingbookings") renderWeddingBookings();
     if (sectionId === "weddingearnings") renderWeddingEarnings();
+
+    // Mobile bottom-nav active state
+    const mnavMap = { money: ["money","subscriptions","transfers","moneystats"], stocks: ["stocks","stockstats"], deposits: ["deposits"], stats: ["stats"] };
+    document.querySelectorAll(".mnav-btn").forEach((b) => {
+      const n = b.dataset.nav;
+      if (n === "more") b.classList.toggle("active", ["property","weddingbookings","weddingearnings"].includes(sectionId));
+      else b.classList.toggle("active", (mnavMap[n] || []).includes(sectionId));
+    });
+    // Close the "More" sheet after any navigation
+    document.body.classList.remove("nav-open");
   }
 
   // ---------- toast ----------
