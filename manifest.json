@@ -1,0 +1,33 @@
+{
+  "name": "Finance Tracker",
+  "short_name": "Finance",
+  "description": "Track your finances, properties, and money with an easy-to-use dashboard",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#E6E4DF",
+  "theme_color": "#E8762D",
+  "orientation": "portrait-or-landscape",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2340D397'/><stop offset='1' stop-color='%235b9dff'/></linearGradient></defs><rect width='192' height='192' rx='42' fill='url(%23g)'/><text x='96' y='142' font-family='sans-serif' font-size='126' font-weight='700' fill='white' text-anchor='middle'>$</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2340D397'/><stop offset='1' stop-color='%235b9dff'/></linearGradient></defs><rect width='512' height='512' rx='112' fill='url(%23g)'/><text x='256' y='378' font-family='sans-serif' font-size='336' font-weight='700' fill='white' text-anchor='middle'>$</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "productivity"],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><rect width='540' height='720' fill='%23f5f5f5'/><text x='270' y='100' font-family='sans-serif' font-size='32' font-weight='bold' fill='%23333' text-anchor='middle'>Finance Tracker</text></svg>",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ]
+}
